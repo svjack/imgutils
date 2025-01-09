@@ -180,7 +180,7 @@ print(df.to_markdown())
   
 - Not Have
 
-  |    | name     | person   |   detected_name |
+|    | name     | person   |   detected_name |
 |---:|:---------|:---------|----------------:|
 |  5 | 多莉     | {}       |             nan |
 |  6 | 艾梅莉埃 | {}       |             nan |
@@ -200,6 +200,7 @@ print(df.to_markdown())
 | 78 | 辛焱     | {}       |             nan |
 | 79 | 赛索斯   | {}       |             nan |
 | 84 | 夏洛蒂   | {}       |             nan |
+
 
 ## Supported or Developing Features
 
