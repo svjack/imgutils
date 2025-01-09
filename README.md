@@ -40,6 +40,167 @@ pip install dghs-imgutils[gpu]
 For more information about installation, you can refer
 to [Installation](https://deepghs.github.io/imgutils/main/tutorials/installation/index.html).
 
+## Benchmark on Character Recognize Tag on Genshin Imapct some Characters (svjack/Genshin-Impact-Illustration)
+
+```python
+from datasets import load_dataset
+import os
+from PIL import Image
+
+# 加载数据集
+Genshin_Impact_Illustration_ds = load_dataset("svjack/Genshin-Impact-Illustration")["train"]
+ds_size = len(Genshin_Impact_Illustration_ds)
+name_image_dict = {}
+for i in range(ds_size):
+    row_dict = Genshin_Impact_Illustration_ds[i]
+    name_image_dict[row_dict["name"]] = row_dict["image"]
+
+# 保存图片的函数
+def save_images(name_image_dict, output_dir):
+    # 确保输出目录存在
+    os.makedirs(output_dir, exist_ok=True)
+
+    # 遍历字典，保存图片
+    for name, image in name_image_dict.items():
+        # 构造文件路径
+        file_path = os.path.join(output_dir, f"{name}.png")  # 假设保存为 PNG 格式
+        # 保存图片
+        image.save(file_path)
+        print(f"Saved {file_path}")
+
+# 示例：保存图片到指定路径
+output_directory = "genshin_impact_images"  # 替换为你想保存图片的路径
+save_images(name_image_dict, output_directory)
+```
+
+```bash
+python score_tag_script.py genshin_impact_images genshin_impact_images_with_tags
+```
+
+```python
+import pathlib
+import pandas as pd
+import numpy as np
+def rj_func(x):
+    import json 
+    with open(x, "r") as f:
+        return json.load(f)
+
+df = pd.DataFrame(
+pd.Series(
+    list(pathlib.Path("genshin_impact_images_with_tags/").rglob("*.json"))
+).map(str).map(lambda x: np.nan if ".ipy" in x else x).dropna().map(
+    lambda x: (x.split("/")[-1].replace(".json", ""), rj_func(x)["characters"])
+).values.tolist())
+df.columns = ["name", "person"]
+df["detected_name"] = df["person"].map(lambda x: list(x.items())).map(lambda x: sorted(x, key = lambda t2: -1 * t2[1]))
+df["detected_name"] = df["detected_name"].map(lambda x: x[0] if x else np.nan)
+df_np = df.iloc[np.where(pd.isna(df))[0]].copy()
+df = df.dropna()
+df["detected_score"] = df["detected_name"].map(lambda x: x[1])
+df["detected_name"] = df["detected_name"].map(lambda x: x[0])
+del df["person"]
+df = df.sort_values(by = "detected_score", ascending = False)
+df = df.reset_index().iloc[:, 1:]
+print(df.to_markdown())
+```
+
+- Recognized
+
+|    | name       | detected_name                |   detected_score |
+|---:|:-----------|:-----------------------------|-----------------:|
+|  0 | 迪奥娜     | diona_(genshin_impact)       |         0.996558 |
+|  1 | 克洛琳德   | clorinde_(genshin_impact)    |         0.995989 |
+|  2 | 诺艾尔     | noelle_(genshin_impact)      |         0.995388 |
+|  3 | 久岐忍     | kuki_shinobu                 |         0.994924 |
+|  4 | 鹿野院平藏 | shikanoin_heizou             |         0.994901 |
+|  5 | 罗莎莉亚   | rosaria_(genshin_impact)     |         0.994056 |
+|  6 | 柯莱       | collei_(genshin_impact)      |         0.993521 |
+|  7 | 阿蕾奇诺   | arlecchino_(genshin_impact)  |         0.993432 |
+|  8 | 九条裟罗   | kujou_sara                   |         0.993423 |
+|  9 | 妮露       | nilou_(genshin_impact)       |         0.992874 |
+| 10 | 绮良良     | kirara_(genshin_impact)      |         0.992663 |
+| 11 | 凝光       | ningguang_(genshin_impact)   |         0.992605 |
+| 12 | 魈         | xiao_(genshin_impact)        |         0.992349 |
+| 13 | 北斗       | beidou_(genshin_impact)      |         0.992224 |
+| 14 | 香菱       | xiangling_(genshin_impact)   |         0.991925 |
+| 15 | 早柚       | sayu_(genshin_impact)        |         0.991844 |
+| 16 | 凯亚       | kaeya_(genshin_impact)       |         0.991808 |
+| 17 | 甘雨       | ganyu_(genshin_impact)       |         0.991792 |
+| 18 | 荒泷一斗   | arataki_itto                 |         0.991608 |
+| 19 | 枫原万叶   | kaedehara_kazuha             |         0.991601 |
+| 20 | 丽莎       | lisa_(genshin_impact)        |         0.991569 |
+| 21 | 珊瑚宫心海 | sangonomiya_kokomi           |         0.991537 |
+| 22 | 琴         | jean_(genshin_impact)        |         0.99133  |
+| 23 | 夜兰       | yelan_(genshin_impact)       |         0.990918 |
+| 24 | 那维莱特   | neuvillette_(genshin_impact) |         0.990562 |
+| 25 | 雷泽       | razor_(genshin_impact)       |         0.990388 |
+| 26 | 可莉       | klee_(genshin_impact)        |         0.990335 |
+| 27 | 琳妮特     | lynette_(genshin_impact)     |         0.98981  |
+| 28 | 流浪者     | wanderer_(genshin_impact)    |         0.9897   |
+| 29 | 卡维       | kaveh_(genshin_impact)       |         0.989697 |
+| 30 | 林尼       | lyney_(genshin_impact)       |         0.989454 |
+| 31 | 艾尔海森   | alhaitham_(genshin_impact)   |         0.989404 |
+| 32 | 莱依拉     | layla_(genshin_impact)       |         0.989404 |
+| 33 | 菲谢尔     | fischl_(genshin_impact)      |         0.989271 |
+| 34 | 五郎       | gorou_(genshin_impact)       |         0.98924  |
+| 35 | 神里绫华   | kamisato_ayaka               |         0.989221 |
+| 36 | 芭芭拉     | barbara_(genshin_impact)     |         0.988973 |
+| 37 | 胡桃       | hu_tao_(genshin_impact)      |         0.988538 |
+| 38 | 雷电将军   | raiden_shogun                |         0.988526 |
+| 39 | 七七       | qiqi_(genshin_impact)        |         0.988514 |
+| 40 | 温迪       | venti_(genshin_impact)       |         0.988426 |
+| 41 | 八重神子   | yae_miko                     |         0.988334 |
+| 42 | 纳西妲     | nahida_(genshin_impact)      |         0.988111 |
+| 43 | 砂糖       | sucrose_(genshin_impact)     |         0.987847 |
+| 44 | 申鹤       | shenhe_(genshin_impact)      |         0.987684 |
+| 45 | 行秋       | xingqiu_(genshin_impact)     |         0.987565 |
+| 46 | 闲云       | xianyun_(genshin_impact)     |         0.98728  |
+| 47 | 云堇       | yun_jin_(genshin_impact)     |         0.986846 |
+| 48 | 娜维娅     | navia_(genshin_impact)       |         0.986794 |
+| 49 | 莫娜       | mona_(genshin_impact)        |         0.986562 |
+| 50 | 托马       | thoma_(genshin_impact)       |         0.986532 |
+| 51 | 宵宫       | yoimiya_(genshin_impact)     |         0.986046 |
+| 52 | 莱欧斯利   | wriothesley_(genshin_impact) |         0.985957 |
+| 53 | 珐露珊     | faruzan_(genshin_impact)     |         0.985146 |
+| 54 | 神里绫人   | kamisato_ayato               |         0.985136 |
+| 55 | 达达利亚   | tartaglia_(genshin_impact)   |         0.984887 |
+| 56 | 迪希雅     | dehya_(genshin_impact)       |         0.984819 |
+| 57 | 阿贝多     | albedo_(genshin_impact)      |         0.984713 |
+| 58 | 刻晴       | keqing_(genshin_impact)      |         0.984672 |
+| 59 | 优菈       | eula_(genshin_impact)        |         0.983777 |
+| 60 | 赛诺       | cyno_(genshin_impact)        |         0.982358 |
+| 61 | 安柏       | amber_(genshin_impact)       |         0.982014 |
+| 62 | 提纳里     | tighnari_(genshin_impact)    |         0.981816 |
+| 63 | 迪卢克     | diluc_(genshin_impact)       |         0.981325 |
+| 64 | 钟离       | zhongli_(genshin_impact)     |         0.980978 |
+| 65 | 烟绯       | yanfei_(genshin_impact)      |         0.980499 |
+| 66 | 芙宁娜     | furina_(genshin_impact)      |         0.979196 |
+| 67 | 重云       | chongyun_(genshin_impact)    |         0.972725 |
+  
+- Not Have
+
+  |    | name     | person   |   detected_name |
+|---:|:---------|:---------|----------------:|
+|  5 | 多莉     | {}       |             nan |
+|  6 | 艾梅莉埃 | {}       |             nan |
+| 18 | 玛拉妮   | {}       |             nan |
+| 24 | 千织     | {}       |             nan |
+| 29 | 坎蒂丝   | {}       |             nan |
+| 32 | 埃洛伊   | {}       |             nan |
+| 38 | 菲米尼   | {}       |             nan |
+| 43 | 班尼特   | {}       |             nan |
+| 47 | 白术     | {}       |             nan |
+| 48 | 希格雯   | {}       |             nan |
+| 52 | 夏沃蕾   | {}       |             nan |
+| 56 | 嘉明     | {}       |             nan |
+| 59 | 米卡     | {}       |             nan |
+| 63 | 卡齐娜   | {}       |             nan |
+| 67 | 瑶瑶     | {}       |             nan |
+| 78 | 辛焱     | {}       |             nan |
+| 79 | 赛索斯   | {}       |             nan |
+| 84 | 夏洛蒂   | {}       |             nan |
+
 ## Supported or Developing Features
 
 * [Tachie(差分) Detection and Clustering](https://github.com/deepghs/imgutils#tachie%E5%B7%AE%E5%88%86-detection-and-clustering)
