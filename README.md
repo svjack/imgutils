@@ -201,6 +201,27 @@ print(df.to_markdown())
 | 79 | 赛索斯   | {}       |             nan |
 | 84 | 夏洛蒂   | {}       |             nan |
 
+## UI demo and script demo 
+```bash
+sudo apt-get update && sudo apt-get install git-lfs ffmpeg cbm
+
+conda create -n py310 python=3.10 && conda activate py310
+pip install ipykernel
+python -m ipykernel install --user --name py310 --display-name "py310"
+
+git clone https://huggingface.co/spaces/svjack/genshin_impact_ccip && cd genshin_impact_ccip
+pip install -r requirements.txt ### or pip install -r requirements_gpu.txt
+
+### gradio demo
+python app.py
+
+### score demo
+python score_script.py . three_output
+
+### score tag demo
+python score_tag_script.py . three_tag_output
+```
+
 
 ## Supported or Developing Features
 
